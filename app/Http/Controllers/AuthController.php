@@ -1,17 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-// use Validator;
-use Illuminate\Support\Facades\Validator;
-use App\Models\User as User;
-class LoginController extends Controller
+use  App\Models\User as User;
+use Validator;
+use DB;
+use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
+class AuthController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
+
     public function __construct()
     {
     }
@@ -31,12 +31,11 @@ if ($validator-> fails()) {
 } 
 try{
 $data=$request->all();
-
 $ins_data=User::insert($data);
 
 return response()->json([
     "code" => 200,   
-    "message" => "User Registered Successfully!"
+    "message" => "User Registered!"
 ]);
 }
 catch (\Throwable $th) {
@@ -54,7 +53,7 @@ public function generateOTP(Request $request)
 {
     $rules = [
 
-        'mobile' => 'required|int|exists:users,mobile'
+        'email' => 'required|email|exists:users,email'
 
     ];
 
@@ -64,9 +63,9 @@ return responseValidationError('Fields Validation Failed.', $validator->errors()
 } 
 try{
 $data=$request->all();
-$mobile=$data['mobile'];
+$email=$data['email'];
 $gen_otp = mt_rand(1000,9999);
-$save_otp=User::where('mobile',$mobile)->update(['otp'=>$gen_otp]);
+$save_otp=User::where('email',$email)->update(['otp'=>$gen_otp]);
 
 return response()->json([
 "code" => 200,   
@@ -85,10 +84,10 @@ return response()->json([
 }
 }
 
-public function verifyOTP(Request $request)
+public function login(Request $request)
 {
     $rules = [        
-        'mobile' => 'required|int|exists:users,mobile',
+        'email' => 'required|email|exists:users,email',
         'otp' => 'required|int|exists:users,otp'
 
     ];
@@ -99,20 +98,22 @@ return responseValidationError('Fields Validation Failed.', $validator->errors()
 } 
 try{
 $data=$request->all();
-$mobile=$data['mobile'];
+$email=$data['email'];
 $otp=$data['otp'];
-$get_otp=User::where('mobile',$mobile)->value('otp');
-if($otp != $get_otp)
+$user=User::where('email',$email)->first();
+
+if($otp != $user['otp'])
 {
     return response()->json([
         "code" => 401,   
         "message" => "Invalid OTP! Please Try Again"
         ]);
 }
-return response()->json([
-"code" => 200,   
-"message" => "OTP Successfully Verified"
-]);
+
+$token = JWTAuth::fromUser($user);
+
+return $this->respondWithToken($token);
+
 }
 catch (\Throwable $th) {
 return response()->json([
@@ -121,10 +122,22 @@ return response()->json([
     'message' =>  'Something Went Wrong',
     'error' => $th->getMessage()
 ]);
+}
+}
+
+public function logout(Request $request)
+{
+    Auth::guard('web')->logout();
+
+    return response()->json([
+        'status' => 'success',
+        'code' => 200,
+        'message' => 'User Logout Sucessfully!'
+    ]);
 
 
 }
-}
+
 
 
 }

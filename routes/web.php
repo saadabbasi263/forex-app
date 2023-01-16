@@ -17,8 +17,13 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 $router->group(['prefix' => 'api'], function () use ($router) {
+    $router->post('register', 'AuthController@register');
+    $router->post('generate-otp', 'AuthController@generateOTP');
+    $router->post('login', 'AuthController@login');
 
-    $router->post('register', 'LoginController@register');
-    $router->post('generate-otp', 'LoginController@generateOTP');
-    $router->post('verify-otp', 'LoginController@verifyOTP');
+    $router->group(['middleware' => 'jwtverification'], function()use ($router)  {
+
+    $router->post('logout', 'AuthController@logout');
+});
+
 });
