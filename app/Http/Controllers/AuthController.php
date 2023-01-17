@@ -64,7 +64,8 @@ return responseValidationError('Fields Validation Failed.', $validator->errors()
 try{
 $data=$request->all();
 $email=$data['email'];
-$gen_otp = mt_rand(1000,9999);
+// $gen_otp = mt_rand(1000,9999);
+$gen_otp='3500';
 $save_otp=User::where('email',$email)->update(['otp'=>$gen_otp]);
 
 return response()->json([

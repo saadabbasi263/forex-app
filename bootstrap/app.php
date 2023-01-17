@@ -99,8 +99,9 @@ $app->routeMiddleware([
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
-
-// $app->register(SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class);
+// $app->register(SimpleSoftwareIO\QrCode\ServiceProvider::class);
+// $app->alias('QrCode',SimpleSoftwareIO\QrCode\Facade::class);
+// $app->register(SimpleSoftwareIO\QrCode\ServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
