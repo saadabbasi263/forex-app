@@ -23,9 +23,9 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+$app->withFacades();
 
-// $app->withEloquent();
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -76,9 +76,13 @@ $app->configure('app');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class,
+]);
+$app->routeMiddleware([
+    'jwtverification' => App\Http\Middleware\JwtMiddleware::class,
+ 
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -92,8 +96,12 @@ $app->configure('app');
 */
 
 // $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
+$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+// $app->register(SimpleSoftwareIO\QrCode\ServiceProvider::class);
+// $app->alias('QrCode',SimpleSoftwareIO\QrCode\Facade::class);
+// $app->register(SimpleSoftwareIO\QrCode\ServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
