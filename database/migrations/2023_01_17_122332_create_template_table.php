@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('qrcodes', function (Blueprint $table) {
+        Schema::create('template', function (Blueprint $table) {
+       
             $table->id();
-            $table->integer('user_id');
-            $table->string('data')->nullable();
-            $table->string('path')->nullable();
-            $table->integer('temp_id')->nullable();
-            $table->integer('status')->default(1);
+            $table->string('front')->nullable();
+            $table->string('back')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->timestamp('deleted_at')->nullable();
@@ -33,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('qrcodes');
+        Schema::dropIfExists('template');
     }
 };

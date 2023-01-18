@@ -23,6 +23,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
     $router->group(['middleware' => 'jwtverification'], function()use ($router)  {
         $router->post('generate-qr', 'QRController@QRgenerate');
+        $router->get('get-templates', 'QRController@getTemplates');
     $router->post('logout', 'AuthController@logout');
 });
 
