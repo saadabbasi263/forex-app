@@ -7,6 +7,7 @@ use  App\Models\User as User;
 use App\Models\QRCodes as QRCodes;
 use App\Models\Template as Template;
 use Validator;
+use Illuminate\Support\Str;
 use Auth;
 use Illuminate\Support\Facades\File; 
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -18,7 +19,7 @@ class QRController extends Controller
     {
        
         $rules = [
-            'data' => 'required|string',
+            'data' => 'required',
       
  
         ];
@@ -28,28 +29,72 @@ if ($validator-> fails()) {
     return responseValidationError('Fields Validation Failed.', $validator->errors());
 } 
 try{
+    $path = public_path().'/images';
+    File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
+    $time = date('His');
+    $name='QR-'.$time.'.svg';
+    $userId = Auth::id();
 $data=json_decode($request->getContent(),true);
 
-$path = public_path().'/images';
-File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
+$data=$data['data'];
 
-$time = date('His');
-$name='QR-'.$time.'.svg';
-$qr=QrCode::size(300)->generate(''.$data['data'],public_path('images/'.$name) );
-$userId = Auth::id();
+if(is_array($data))
+{
+$data=json_encode($data);
+}
+$key = Str::random(10);
 
-$ins_data=QRCodes::insert([
+$qr=QrCode::size(300)->generate(''.env('APP_URL').'/api/view-qr/'.$key,public_path('images/'.$name) );
+
+
+$ins_data=QRCodes::insertGetId([
     'user_id' => $userId,
-    'data' => $data['data'],
+    'data' => $data,
+    'key' => $key,
     'path' => env('APP_URL').'/images'.'/'.$name
 ]);
 
 return response()->json([
     "code" => 200,
-    "path"=>  env('APP_URL').'/images'.'/'.$name,   
-    "message" => "User Registered!"
+    "path"=>  env('APP_URL').'/images'.'/'.$name,  
+    "message" => "QR Generated Successfully!"
 ]);
 }
+catch (\Throwable $th) {
+    return response()->json([
+        "code" => 500,
+        'status' => "error",
+        "message" => "Internal Server Error",
+        'error' => $th->getMessage()
+    ]);
+    
+    }
+
+}
+public function QRview(Request $request,$key)
+{
+   
+$validator = Validator::make(['key' => $key],[
+
+'key' => 'required|string|min:1|exists:qrcodes,key',
+]);
+
+if ($validator->fails()) {
+return responseValidationError('Fields Validation Failed.', $validator->errors());
+}
+try
+{
+   
+    $getData=QRCodes::where('key',$key)->where('status',1)->pluck('data')->first();
+    if(!is_null(json_decode($getData)))
+    {
+   $getData=json_decode($getData);
+    }
+    return response()->json([
+    $getData
+    ]);
+}
+
 catch (\Throwable $th) {
     return response()->json([
         "code" => 500,
@@ -86,4 +131,6 @@ catch (\Throwable $th) {
     }
 
 }
+
+
 }

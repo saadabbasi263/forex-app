@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('path')->nullable();
             $table->integer('temp_id')->nullable();
             $table->integer('status')->default(1);
+            $table->string('key');
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->timestamp('deleted_at')->nullable();
