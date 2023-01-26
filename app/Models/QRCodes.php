@@ -22,7 +22,4 @@ class QRCodes extends Model
     {
         return $this->hasOne('App\Models\Template','id','temp_id');
     }
-
-
-
 }
