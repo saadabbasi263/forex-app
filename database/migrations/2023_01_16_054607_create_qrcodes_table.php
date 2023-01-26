@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('qrcodes', function (Blueprint $table) {
             $table->id();
             $table->integer('user_id');
-            $table->string('data')->nullable();
+            $table->longText('data')->nullable();
             $table->string('path')->nullable();
             $table->integer('temp_id')->nullable();
             $table->integer('status')->default(1);

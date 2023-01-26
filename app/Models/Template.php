@@ -13,7 +13,7 @@ class Template extends Model
     protected $table = "template";
     public $timestamps = false;
     protected $fillable = [
-        'front', 'back'
+        'view_name'
     ];
 
 

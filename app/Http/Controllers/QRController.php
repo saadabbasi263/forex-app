@@ -7,6 +7,7 @@ use  App\Models\User as User;
 use App\Models\QRCodes as QRCodes;
 use App\Models\Template as Template;
 use Validator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Auth;
 use Illuminate\Support\Facades\File; 
@@ -15,7 +16,7 @@ use DB;
 class QRController extends Controller
 {
 
-    public function QRgenerate(Request $request)
+    public function QRgenerate(Request $request,$template_id=null)
     {
        
         $rules = [
@@ -28,6 +29,18 @@ $validator = Validator::make($request->all(), $rules);
 if ($validator-> fails()) {
     return responseValidationError('Fields Validation Failed.', $validator->errors());
 } 
+if(!is_null($template_id))
+{
+    $validator = Validator::make(['template_id' => $template_id],[
+
+        'template_id' => 'required|int|min:1|exists:template,id',
+        ]);
+        
+        if ($validator->fails()) {
+        return responseValidationError('Fields Validation Failed.', $validator->errors());
+        }
+}
+
 try{
     $path = public_path().'/images';
     File::isDirectory($path) or File::makeDirectory($path, 0777, true, true);
@@ -50,6 +63,7 @@ $qr=QrCode::size(300)->generate(''.env('APP_URL').'/api/view-qr/'.$key,public_pa
 $ins_data=QRCodes::insertGetId([
     'user_id' => $userId,
     'data' => $data,
+    'temp_id' => ($template_id==null)? NULL:$template_id,
     'key' => $key,
     'path' => env('APP_URL').'/images'.'/'.$name
 ]);
@@ -84,8 +98,19 @@ return responseValidationError('Fields Validation Failed.', $validator->errors()
 }
 try
 {
+    $getData=QRCodes::where('key',$key)->where('status',1)->get(['data','temp_id'])->first();
+
+
+if($getData['temp_id'] != NULL || $getData['temp_id'] != null)
+{
    
-    $getData=QRCodes::where('key',$key)->where('status',1)->pluck('data')->first();
+    $newData=QRCodes::with('template')->where('key',$key)->where('status',1)->get(['data','temp_id'])->first();  
+    $view=$newData['template']->view_name;
+    return view(''.$view);
+
+}
+$getData = Arr::except($getData,['temp_id']);
+
     if(!is_null(json_decode($getData)))
     {
    $getData=json_decode($getData);
@@ -95,31 +120,6 @@ try
     ]);
 }
 
-catch (\Throwable $th) {
-    return response()->json([
-        "code" => 500,
-        'status' => "error",
-        "message" => "Internal Server Error",
-        'error' => $th->getMessage()
-    ]);
-    
-    }
-
-}
-
-public function getTemplates(Request $request)
-{
-
-try{
-$get_Template=Template::get(['id','front','back'])->toArray();
-$path=env('APP_URL').'/';
-return response()->json([
-    "code" => 200,
-    "path" => $path,
-    "data"=>  $get_Template,   
-    "message" => "User Registered!"
-]);
-}
 catch (\Throwable $th) {
     return response()->json([
         "code" => 500,
