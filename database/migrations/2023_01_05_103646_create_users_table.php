@@ -17,9 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('name')->nullable();
             $table->string('email')->nullable();  
-            $table->bigInteger('mobile')->nullable();
+            $table->string('password')->nullable();
             $table->integer('status')->default(1);
-            $table->integer('otp')->nullable();
+            $table->integer('is_email_verified')->default(0);
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->nullable();
         });

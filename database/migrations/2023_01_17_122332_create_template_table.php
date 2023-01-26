@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('template', function (Blueprint $table) {
        
             $table->id();
-            $table->string('front')->nullable();
-            $table->string('back')->nullable();
+            $table->string('view_name')->nullable();
+            $table->integer('status')->nullable();
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->timestamp('deleted_at')->nullable();

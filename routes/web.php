@@ -18,13 +18,15 @@ $router->get('/', function () use ($router) {
 });
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('register', 'AuthController@register');
-    $router->post('generate-otp', 'AuthController@generateOTP');
     $router->post('login', 'AuthController@login');
+    $router->get('view-qr/{key}', 'QRController@QRview');
 
     $router->group(['middleware' => 'jwtverification'], function()use ($router)  {
         $router->post('generate-qr', 'QRController@QRgenerate');
-        $router->get('get-templates', 'QRController@getTemplates');
-    $router->post('logout', 'AuthController@logout');
+        $router->post('generate-qr/{template_id}', 'QRController@QRgenerate');
+     
+        // $router->get('get-templates', 'QRController@getTemplates');
+        $router->post('logout', 'AuthController@logout');
 });
 
 });

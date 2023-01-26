@@ -21,7 +21,8 @@ class AuthController extends Controller
         $rules = [
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'mobile' => 'required|int'
+            'password' => 'min:6|required',
+       
  
         ];
 
@@ -31,6 +32,7 @@ if ($validator-> fails()) {
 } 
 try{
 $data=$request->all();
+$data['password']= Hash::make($data['password']);
 $ins_data=User::insert($data);
 
 return response()->json([
@@ -49,47 +51,12 @@ catch (\Throwable $th) {
 
     }
 }
-public function generateOTP(Request $request)
-{
-    $rules = [
-
-        'email' => 'required|email|exists:users,email'
-
-    ];
-
-$validator = Validator::make($request->all(), $rules);
-if ($validator-> fails()) {
-return responseValidationError('Fields Validation Failed.', $validator->errors());
-} 
-try{
-$data=$request->all();
-$email=$data['email'];
-// $gen_otp = mt_rand(1000,9999);
-$gen_otp='3500';
-$save_otp=User::where('email',$email)->update(['otp'=>$gen_otp]);
-
-return response()->json([
-"code" => 200,   
-"message" => "OTP Sent Successfully!"
-]);
-}
-catch (\Throwable $th) {
-return response()->json([
-    'status' => "error",
-    'code' => '500',
-    'message' =>  'Something Went Wrong',
-    'error' => $th->getMessage()
-]);
-
-
-}
-}
 
 public function login(Request $request)
 {
     $rules = [        
         'email' => 'required|email|exists:users,email',
-        'otp' => 'required|int|exists:users,otp'
+        'password' =>'min:6|required'
 
     ];
 
@@ -100,20 +67,22 @@ return responseValidationError('Fields Validation Failed.', $validator->errors()
 try{
 $data=$request->all();
 $email=$data['email'];
-$otp=$data['otp'];
-$user=User::where('email',$email)->first();
+$credentials = $request->only('email', 'password');
+$user_id = User::where('email',$email)->pluck('id')->first();
 
-if($otp != $user['otp'])
+if($token = JWTAuth::claims(['user_id' => $user_id])->attempt($credentials))
 {
-    return response()->json([
-        "code" => 401,   
-        "message" => "Invalid OTP! Please Try Again"
-        ]);
+    return $this->respondWithToken($token);
+
 }
 
-$token = JWTAuth::fromUser($user);
+return response()->json([
+    'status' => "error",
+    'code' => '404',
+    'message' =>  'Incorrect Password For '.$email,
+]);
 
-return $this->respondWithToken($token);
+
 
 }
 catch (\Throwable $th) {
@@ -138,7 +107,4 @@ public function logout(Request $request)
 
 
 }
-
-
-
 }
