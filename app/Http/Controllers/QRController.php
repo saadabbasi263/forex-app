@@ -132,6 +132,90 @@ catch (\Throwable $th) {
     }
 
 }
+public function viewallQR(Request $request)
+{
+    try{
+    $userId = Auth::id();
+    $getData=QRCodes::where('user_id',$userId)->get(['data','path','temp_id'])->toArray();
+    if(count($getData) > 0)
+    {
+        for($i=0;$i<count($getData);$i++)
+        {
+       $getData[$i]['data']=json_decode($getData[$i]['data']);
+        }
+}
+        return response()->json([
+            "code" => 200,
+            "message" => "Data Loaded",
+            "data" => $getData
+        ]);
+       
+
+    }
+ 
+
+    catch (\Throwable $th) {
+        return response()->json([
+            "code" => 500,
+            'status' => "error",
+            "message" => "Internal Server Error",
+            'error' => $th->getMessage()
+        ]);
+
+}
 
 
+}
+public function editQR(Request $request)
+{
+    try{
+$data=json_decode($request->getContent(),true);
+
+if(count($data)>0)
+{
+$update=QRCodes::where('id',$data['id'])->update($data);
+}
+        return response()->json([
+            "code" => 200,
+            "message" => "Successfully Updated!"
+        ]);
+    }
+    catch (\Throwable $th) {
+        return response()->json([
+            "code" => 500,
+            'status' => "error",
+            "message" => "Internal Server Error",
+            'error' => $th->getMessage()
+        ]);
+}
+}
+
+public function deleteQR(Request $request,$id)
+{
+    $validator = Validator::make(['id' => $id],[
+
+        'id' => 'required|int|min:1|exists:qrcodes,id',
+        ]);
+        
+        if ($validator->fails()) {
+        return responseValidationError('Fields Validation Failed.', $validator->errors());
+        }
+        try
+        {
+$remove=QRCodes::where('id',$id)->delete();
+return response()->json([
+    "code" => 200,
+    "message" => "Successfully Deleted!"
+]);
+        }
+
+        catch (\Throwable $th) {
+            return response()->json([
+                "code" => 500,
+                'status' => "error",
+                "message" => "Internal Server Error",
+                'error' => $th->getMessage()
+            ]);
+    }
+}
 }
