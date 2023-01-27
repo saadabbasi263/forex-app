@@ -106,7 +106,8 @@ if($getData['temp_id'] != NULL || $getData['temp_id'] != null)
    
     $newData=QRCodes::with('template')->where('key',$key)->where('status',1)->get(['data','temp_id'])->first();  
     $view=$newData['template']->view_name;
-    return view(''.$view);
+    $data= json_decode($newData['data']);
+    return view(''.$view)->with(['data'=>$data]);
 
 }
 $getData = Arr::except($getData,['temp_id']);

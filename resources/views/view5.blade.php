@@ -1084,12 +1084,12 @@ input {
                     </defs>
                 </svg>
 
-                <span><strong><input class="company" type="text" placeholder="COMPANY NAME"></strong></span>
-                <input class="tag" type="text" placeholder="TAGLINE">
+                <span><strong><input class="company" type="text" value={{ $data->comp_name }} readonly="readonly"></strong></span>
+                <input class="tag" type="text" value={{ $data->comp_tag }} readonly="readonly">
             </div> <!--.left-->
             <div class="right col-6">
-                <input class="name" type="text" placeholder="YOUR NAME">
-                <input class="desig" type="text" placeholder="DESIGNATION">
+                <input class="name" type="text" value={{ $data->name }} readonly="readonly">
+                <input class="desig" type="text" value={{ $data->designation }} readonly="readonly">
                 <div class="contact-wrapper">
                     <div class="phone contact-info">
                         <span class="icon">
@@ -1101,7 +1101,7 @@ input {
                             </svg>
                         </span> <!--.icon-->
                         <span class="info">
-                            <input class="orange" type="text" placeholder="+0012 3456 7890">
+                            <input class="orange" type="text" value={{ $data->phone }} readonly="readonly">
                         </span>
                     </div> <!--.phone-->
                     <div class="email contact-info">
@@ -1114,7 +1114,7 @@ input {
                             </svg>
                         </span> <!--.icon-->
                         <span class="info">
-                            <input class="orange" type="text" placeholder="name@company.com">
+                            <input class="orange" type="text" value={{ $data->email }} readonly="readonly">
                         </span>
                     </div> <!--.email-->
                     <div class="link contact-info">
@@ -1125,7 +1125,7 @@ input {
                         </svg>
                         </span> <!--.icon-->
                         <span class="info">
-                            <input class="orange" type="text" placeholder="www.company.com">
+                            <input class="orange" type="text" value={{ $data->website }} readonly="readonly">
                         </span>
                     </div> <!--.link-->
                     <div class="location contact-info">
@@ -1138,7 +1138,7 @@ input {
                             </svg>
                         </span>
                         <span class="info"> <input class="black" type="text"
-                                placeholder="Office # 01, Street # 02, New Town, State Country"></span>
+                        value={{ $data->address }} readonly="readonly"></span>
                     </div> <!--.location-->
                 </div> <!--contact-wrapper-->
             </div> <!--.right-->
@@ -1985,10 +1985,10 @@ input {
 
         </div> <!--.qr-->
         <div class="company">
-            <input type="text" placeholder="COMPANY NAME">
+            <input type="text" value={{ $data->comp_name }} readonly="readonly">
         </div>
         <div class="tag">
-            <input type="text" placeholder="TAGLINE">
+            <input type="text" value={{ $data->comp_tag }} readonly="readonly">
         </div>
     </div> <!--.back-outer-container-->
 </body>
