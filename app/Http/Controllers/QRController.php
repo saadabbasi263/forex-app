@@ -7,6 +7,7 @@ use  App\Models\User as User;
 use App\Models\QRCodes as QRCodes;
 use App\Models\Template as Template;
 use Validator;
+use App\Models\QRHistory as QRHistory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Auth;
@@ -96,8 +97,28 @@ $validator = Validator::make(['key' => $key],[
 if ($validator->fails()) {
 return responseValidationError('Fields Validation Failed.', $validator->errors());
 }
+
 try
 {
+
+    $clientIP = request()->ip();
+    $details = file_get_contents('http://www.geoplugin.net/json.gp?ip=' . $clientIP);
+    $json = json_decode($details);
+    if($json->geoplugin_status == '200')
+   {
+    $country=$json->geoplugin_countryName;
+   }
+else
+   {
+    $country=NULL;
+   }
+    $qr_history=QRHistory::insert([
+   "ip" => $clientIP,
+   "country" => $country, 
+   "key" => $key,
+
+    ]);
+
     $getData=QRCodes::where('key',$key)->where('status',1)->get(['data','temp_id'])->first();
 
 
@@ -218,4 +239,51 @@ return response()->json([
             ]);
     }
 }
+public function getQRHistory(Request $request,$key)
+{
+   
+$validator = Validator::make(['key' => $key],[
+
+'key' => 'required|string|min:1|exists:qrcodes,key',
+]);
+
+if ($validator->fails()) {
+return responseValidationError('Fields Validation Failed.', $validator->errors());
+}
+
+try
+{
+
+
+$total=QRHistory::where('key',$key)->count('ip');
+$total_unique=QRHistory::where('key',$key)->distinct()->count('ip');
+$country_imp = DB::table('qr_history')
+                 ->select('country', DB::raw('count(ip) as total'))
+                 ->groupBy('country')
+                 ->get();
+
+return response()->json([
+    "code" => 200,
+    "message" => "Data Loaded Successfully!",
+    "total_imp"=> $total,
+    "unique_imp"=> $total_unique,
+    "country_imp" => $country_imp
+]);
+
+
+}
+
+catch (\Throwable $th) {
+    return response()->json([
+        "code" => 500,
+        'status' => "error",
+        "message" => "Internal Server Error",
+        'error' => $th->getMessage()
+    ]);
+    
+    }
+
+}
+
+
 }
