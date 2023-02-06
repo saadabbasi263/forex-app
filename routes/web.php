@@ -24,8 +24,10 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->group(['middleware' => 'jwtverification'], function()use ($router)  {
         $router->post('generate-qr', 'QRController@QRgenerate');
         $router->post('generate-qr/{template_id}', 'QRController@QRgenerate');
-     
-        // $router->get('get-templates', 'QRController@getTemplates');
+        $router->get('view-user-qr', 'QRController@viewallQR');
+        $router->get('get-history/{key}', 'QRController@getQRHistory');
+        $router->post('edit-qr', 'QRController@editQR');
+        $router->post('delete-qr/{id}', 'QRController@deleteQR');
         $router->post('logout', 'AuthController@logout');
 });
 

@@ -7,6 +7,7 @@ use  App\Models\User as User;
 use App\Models\QRCodes as QRCodes;
 use App\Models\Template as Template;
 use Validator;
+use App\Models\QRHistory as QRHistory;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Auth;
@@ -96,8 +97,28 @@ $validator = Validator::make(['key' => $key],[
 if ($validator->fails()) {
 return responseValidationError('Fields Validation Failed.', $validator->errors());
 }
+
 try
 {
+
+    $clientIP = request()->ip();
+    $details = file_get_contents('http://www.geoplugin.net/json.gp?ip=' . $clientIP);
+    $json = json_decode($details);
+    if($json->geoplugin_status == '200')
+   {
+    $country=$json->geoplugin_countryName;
+   }
+else
+   {
+    $country=NULL;
+   }
+    $qr_history=QRHistory::insert([
+   "ip" => $clientIP,
+   "country" => $country, 
+   "key" => $key,
+
+    ]);
+
     $getData=QRCodes::where('key',$key)->where('status',1)->get(['data','temp_id'])->first();
 
 
@@ -106,7 +127,8 @@ if($getData['temp_id'] != NULL || $getData['temp_id'] != null)
    
     $newData=QRCodes::with('template')->where('key',$key)->where('status',1)->get(['data','temp_id'])->first();  
     $view=$newData['template']->view_name;
-    return view(''.$view);
+    $data= json_decode($newData['data']);
+    return view(''.$view)->with(['data'=>$data]);
 
 }
 $getData = Arr::except($getData,['temp_id']);
@@ -118,6 +140,137 @@ $getData = Arr::except($getData,['temp_id']);
     return response()->json([
     $getData
     ]);
+}
+
+catch (\Throwable $th) {
+    return response()->json([
+        "code" => 500,
+        'status' => "error",
+        "message" => "Internal Server Error",
+        'error' => $th->getMessage()
+    ]);
+    
+    }
+
+}
+public function viewallQR(Request $request)
+{
+    try{
+    $userId = Auth::id();
+    $getData=QRCodes::where('user_id',$userId)->get(['data','path','temp_id'])->toArray();
+    if(count($getData) > 0)
+    {
+        for($i=0;$i<count($getData);$i++)
+        {
+       $getData[$i]['data']=json_decode($getData[$i]['data']);
+        }
+}
+        return response()->json([
+            "code" => 200,
+            "message" => "Data Loaded",
+            "data" => $getData
+        ]);
+       
+
+    }
+ 
+
+    catch (\Throwable $th) {
+        return response()->json([
+            "code" => 500,
+            'status' => "error",
+            "message" => "Internal Server Error",
+            'error' => $th->getMessage()
+        ]);
+
+}
+
+
+}
+public function editQR(Request $request)
+{
+    try{
+$data=json_decode($request->getContent(),true);
+
+if(count($data)>0)
+{
+$update=QRCodes::where('id',$data['id'])->update($data);
+}
+        return response()->json([
+            "code" => 200,
+            "message" => "Successfully Updated!"
+        ]);
+    }
+    catch (\Throwable $th) {
+        return response()->json([
+            "code" => 500,
+            'status' => "error",
+            "message" => "Internal Server Error",
+            'error' => $th->getMessage()
+        ]);
+}
+}
+
+public function deleteQR(Request $request,$id)
+{
+    $validator = Validator::make(['id' => $id],[
+
+        'id' => 'required|int|min:1|exists:qrcodes,id',
+        ]);
+        
+        if ($validator->fails()) {
+        return responseValidationError('Fields Validation Failed.', $validator->errors());
+        }
+        try
+        {
+$remove=QRCodes::where('id',$id)->delete();
+return response()->json([
+    "code" => 200,
+    "message" => "Successfully Deleted!"
+]);
+        }
+
+        catch (\Throwable $th) {
+            return response()->json([
+                "code" => 500,
+                'status' => "error",
+                "message" => "Internal Server Error",
+                'error' => $th->getMessage()
+            ]);
+    }
+}
+public function getQRHistory(Request $request,$key)
+{
+   
+$validator = Validator::make(['key' => $key],[
+
+'key' => 'required|string|min:1|exists:qrcodes,key',
+]);
+
+if ($validator->fails()) {
+return responseValidationError('Fields Validation Failed.', $validator->errors());
+}
+
+try
+{
+
+
+$total=QRHistory::where('key',$key)->count('ip');
+$total_unique=QRHistory::where('key',$key)->distinct()->count('ip');
+$country_imp = DB::table('qr_history')
+                 ->select('country', DB::raw('count(ip) as total'))
+                 ->groupBy('country')
+                 ->get();
+
+return response()->json([
+    "code" => 200,
+    "message" => "Data Loaded Successfully!",
+    "total_imp"=> $total,
+    "unique_imp"=> $total_unique,
+    "country_imp" => $country_imp
+]);
+
+
 }
 
 catch (\Throwable $th) {

@@ -7,19 +7,13 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 
 
-class QRCodes extends Model 
+class QRHistory extends Model 
 {
     protected $primaryKey = "id";
-    protected $table = "qrcodes";
+    protected $table = "qr_history";
     public $timestamps = false;
     protected $fillable = [
-        'user_id', 'data','status'
+        'id', 'key'
     ];
 
-
-
-    public function template()
-    {
-        return $this->hasOne('App\Models\Template','id','temp_id');
-    }
 }
