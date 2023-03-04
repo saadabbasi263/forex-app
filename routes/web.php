@@ -19,15 +19,12 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('register', 'AuthController@register');
     $router->post('login', 'AuthController@login');
-    $router->get('view-qr/{key}', 'QRController@QRview');
+    $router->post('sendotp', 'AuthController@sendotp');
+    $router->post('validateotp', 'AuthController@validateotp');
+    $router->post('updatepassword', 'AuthController@updatepassword');
 
     $router->group(['middleware' => 'jwtverification'], function()use ($router)  {
-        $router->post('generate-qr', 'QRController@QRgenerate');
-        $router->post('generate-qr/{template_id}', 'QRController@QRgenerate');
-        $router->get('view-user-qr', 'QRController@viewallQR');
-        $router->get('get-history/{key}', 'QRController@getQRHistory');
-        $router->post('edit-qr', 'QRController@editQR');
-        $router->post('delete-qr/{id}', 'QRController@deleteQR');
+        $router->get('userdetail', 'AuthController@userdetail');
         $router->post('logout', 'AuthController@logout');
 });
 
