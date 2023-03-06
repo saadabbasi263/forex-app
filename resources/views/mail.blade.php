@@ -109,7 +109,9 @@ p {
 
 .first-digit,
 .second-digit,
-.third-digit {
+.third-digit,
+.fourth-digit,
+.fifth-digit {
 
     margin-right: 2%;
 }
@@ -136,14 +138,6 @@ p {
     |=====================|
 */
 
-@media (max-width: 991px) {
-.first-digit,
-.second-digit,
-.third-digit {
-
-    margin-right: 0;
-}
-}
 
 @media (max-width: 343px) {
     .digits{
@@ -198,10 +192,10 @@ p {
                 <div class="fourth-digit digits col-1">
                     <h3 class="otp">{{ $otp['3'] }}</h3>
                 </div>
-                <div class="fourth-digit digits col-1">
+                <div class="fifth-digit digits col-1">
                     <h3 class="otp">{{ $otp['4'] }}</h3>
                 </div>
-                <div class="fourth-digit digits col-1">
+                <div class="sixth-digit digits col-1">
                     <h3 class="otp">{{ $otp['5'] }}</h3>
                 </div>
                 <!--.fourth-digit-->
