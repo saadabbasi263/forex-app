@@ -6,6 +6,7 @@ use  App\Models\User as User;
 use Validator;
 use DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -126,6 +127,16 @@ $save_otp=User::where('email',$email)->update([
 "otp" => $rand
 
 ]);
+$getName=User::where('email',$email)->pluck('name')->first();
+
+$data = $request->all();
+$data['otp']=(string)$rand;
+$data['name']=$getName;
+
+Mail::send('mail', $data, function($message) use($email) {
+    $message->to($email)->subject("OTP");
+    $message->from('security@streamingapp.com');
+  });
 
     return response()->json([
         'status' => 'success',
@@ -163,8 +174,10 @@ $email=$request['email'];
 $rand=rand ( 100000 , 999999 );
 
 $check_otp=User::where('email',$email)->pluck('otp')->first();
+
 if($check_otp == $otp)
 {
+    $check_otp=User::where('email',$email)->update(['otp' => NULL]);
     return response()->json([
         'status' => 'success',
         'code' => 200,
