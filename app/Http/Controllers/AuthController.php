@@ -22,7 +22,7 @@ class AuthController extends Controller
         $rules = [
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
-            'password' => 'min:6|required',
+            'password' => 'min:4|required',
        
  
         ];
@@ -57,7 +57,7 @@ public function login(Request $request)
 {
     $rules = [        
         'email' => 'required|email|exists:users,email',
-        'password' =>'min:6|required'
+        'password' =>'min:4|required'
 
     ];
 
@@ -71,8 +71,13 @@ $email=$data['email'];
 $credentials = $request->only('email', 'password');
 $user_id = User::where('email',$email)->pluck('id')->first();
 
-if($token = JWTAuth::claims(['user_id' => $user_id])->attempt($credentials))
+$getData=User::where('id',$user_id)->get(['name','phone','email','image'])->first();
+
+
+if($token = JWTAuth::claims(['user_id' => $user_id,'name' => $getData['name'],
+'phone' => $getData['phone'],'image' => $getData['image']])->attempt($credentials))
 {
+
     return $this->respondWithToken($token);
 
 }
@@ -211,8 +216,8 @@ public function updatepassword(Request $request)
 {
     $rules = [       
         'email' => 'required|email|exists:users,email',
-        'password' => 'min:6|required_with:confirmpassword|same:confirmpassword',
-        'confirmpassword' => 'required|min:6',
+        'password' => 'min:4|required_with:confirmpassword|same:confirmpassword',
+        'confirmpassword' => 'required|min:4',
 
     ];
 
@@ -232,6 +237,60 @@ $check_otp=User::where('email',$email)->update(['password'=>$password]);
         'status' => 'success',
         'code' => 200,
         'message' => 'Password Updated Successfully'
+    ]);
+
+
+
+
+}
+catch (\Throwable $th) {
+    return response()->json([
+        'status' => "error",
+        'code' => '500',
+        'message' =>  'Something Went Wrong',
+        'error' => $th->getMessage()
+    ]);
+    }
+
+}
+public function updateUserDetail(Request $request)
+{
+
+try{
+
+$data=$request->all();
+
+   // upload image
+if($request->hasFile('image'))
+{
+    $ldate = date('is');
+    exec('mkdir -p '.public_path('images'));
+    $destinationPath = 'images';
+    $myimage = $request->image->getClientOriginalName();
+    $myimage=$ldate.$myimage;
+    $request->image->move(public_path($destinationPath), $myimage);
+    $imageName=env('APP_URL').'/'.'images'.'/'.$myimage;
+  
+}
+$user=Auth::user();
+
+$UpdateUser=User::where('email',$user->email)->update([
+    
+    'password'=>(isset($request['password']) && $request['password'] != NULL)?Hash::make($request['password']):Hash::make($user->password),
+    'name'=>(isset($request['name']) && $request['name'] != NULL)?$request['name']:$user->name,
+    'phone'=>(isset($request['phone']) && $request['phone'] != NULL)?$request['phone']:$user->phone,
+    'email'=>(isset($request['email']) && $request['email'] != NULL) ?$request['email']:$user->email,
+    'country'=>(isset($request['country']) && $request['country'] != NULL)?$request['country']:$user->country,
+    'gender'=>(isset($request['gender']) && $request['gender'] != NULL)?$request['gender']:$user->gender,
+    'image'=> isset($imageName)?$imageName:$user->image,
+
+    
+]);
+
+    return response()->json([
+        'status' => 'success',
+        'code' => 200,
+        'message' => 'User Details Updated Successfully'
     ]);
 
 
