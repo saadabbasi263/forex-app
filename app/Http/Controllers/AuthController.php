@@ -137,7 +137,6 @@ $getName=User::where('email',$email)->pluck('name')->first();
 $data = $request->all();
 $data['otp']=(string)$rand;
 $data['name']=$getName;
-
 Mail::send('mail', $data, function($message) use($email) {
     $message->to($email)->subject("OTP");
     $message->from('security@streamingapp.com');
