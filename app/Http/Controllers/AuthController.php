@@ -116,103 +116,6 @@ public function logout(Request $request)
 
 }
 
-public function sendotp(Request $request)
-{
-    $rules = [        
-        'email' => 'required|email|exists:users,email',
-
-    ];
-
-$validator = Validator::make($request->all(), $rules);
-if ($validator-> fails()) {
-return responseValidationError('Fields Validation Failed.', $validator->errors());
-} 
-try{
-$email=$request['email'];
-$rand=rand ( 100000 , 999999 );
-$save_otp=User::where('email',$email)->update([
-"otp" => $rand
-
-]);
-$getName=User::where('email',$email)->pluck('name')->first();
-
-$data = $request->all();
-$data['otp']=(string)$rand;
-$data['name']=$getName;
-Mail::send('mail', $data, function($message) use($email) {
-    $message->to($email)->subject("OTP");
-    $message->from('security@streamingapp.com');
-  });
-
-    return response()->json([
-        'status' => 'success',
-        'code' => 200,
-        'message' => 'OTP Sent Sucessfully!'
-    ]);   
-}
-    catch (\Throwable $th) {
-        return response()->json([
-            'status' => "error",
-            'code' => '500',
-            'message' =>  'Something Went Wrong',
-            'error' => $th->getMessage()
-        ]);
-        }
-
-
-}
-public function validateotp(Request $request)
-{
-    $rules = [    
-        'email' => 'required|email|exists:users,email',    
-        'otp' => 'required|integer|min:6',
-
-    ];
-
-$validator = Validator::make($request->all(), $rules);
-if ($validator-> fails()) {
-return responseValidationError('Fields Validation Failed.', $validator->errors());
-} 
-try{
-
-$otp=$request['otp'];
-$email=$request['email'];
-$rand=rand ( 100000 , 999999 );
-
-$check_otp=User::where('email',$email)->pluck('otp')->first();
-
-if($check_otp == $otp)
-{
-    $check_otp=User::where('email',$email)->update(['otp' => NULL]);
-    return response()->json([
-        'status' => 'success',
-        'code' => 200,
-        'message' => 'User Verified Sucessfully!'
-    ]);
-
-}
-else {
-    return response()->json([
-        'status' => 'false',
-        'code' => 403,
-        'message' => 'Invalid OTP'
-    ]);
-
-
-}
-
-}
-catch (\Throwable $th) {
-    return response()->json([
-        'status' => "error",
-        'code' => '500',
-        'message' =>  'Something Went Wrong',
-        'error' => $th->getMessage()
-    ]);
-    }
-
-}
-
 public function updatepassword(Request $request)
 {
     $rules = [       
@@ -254,6 +157,7 @@ catch (\Throwable $th) {
     }
 
 }
+
 public function updateUserDetail(Request $request)
 {
 
@@ -308,34 +212,5 @@ catch (\Throwable $th) {
     }
 
 }
-public function userdetail(Request $request)
-{
 
-try{
-
-    $id=Auth::id();
-$getData=User::where('id',$id)->get(['name','phone','email','image'])->toArray();
-
-
-    return response()->json([
-        'status' => 'success',
-        'code' => 200,
-        'data' => $getData,
-        'message' => 'Data Loaded Successfully'
-    ]);
-
-
-
-
-}
-catch (\Throwable $th) {
-    return response()->json([
-        'status' => "error",
-        'code' => '500',
-        'message' =>  'Something Went Wrong',
-        'error' => $th->getMessage()
-    ]);
-    }
-
-}
 }
