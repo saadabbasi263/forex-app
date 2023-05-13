@@ -19,13 +19,9 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('register', 'AuthController@register');
     $router->post('login', 'AuthController@login');
-    $router->post('sendotp', 'AuthController@sendotp');
-    $router->post('validateotp', 'AuthController@validateotp');
-    $router->post('updatepassword', 'AuthController@updatepassword');
 
     $router->group(['middleware' => 'jwtverification'], function()use ($router)  {
-        $router->get('userdetail', 'AuthController@userdetail');
-        $router->post('updateuserdetail', 'AuthController@updateUserDetail');
+     
         $router->post('logout', 'AuthController@logout');
 });
 
