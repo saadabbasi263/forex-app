@@ -73,10 +73,10 @@ $email=$data['email'];
 $credentials = $request->only('email', 'password');
 $user_id = User::where('email',$email)->pluck('id')->first();
 
-$getData=User::where('id',$user_id)->get(['name','phone','email','image'])->first();
+$getData=User::where('id',$user_id)->get(['firstName','lastName','phone','email','image'])->first();
 
 
-if($token = JWTAuth::claims(['user_id' => $user_id,'name' => $getData['name'],
+if($token = JWTAuth::claims(['user_id' => $user_id,'name' => $getData['firstName'].$getData['lastName'],
 'phone' => $getData['phone'],'image' => $getData['image']])->attempt($credentials))
 {
 
@@ -120,8 +120,8 @@ public function updatepassword(Request $request)
 {
     $rules = [       
         'email' => 'required|email|exists:users,email',
-        'password' => 'min:4|required_with:confirmpassword|same:confirmpassword',
-        'confirmpassword' => 'required|min:4',
+        'newPassword' => 'min:4|required_with:repeatNewPassword|same:repeatNewPassword',
+        'repeatNewPassword' => 'required|min:4',
 
     ];
 
