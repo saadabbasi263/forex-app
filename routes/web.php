@@ -22,6 +22,8 @@ $router->group(['prefix' => 'api'], function () use ($router) {
 
     $router->group(['middleware' => 'jwtverification'], function()use ($router)  {
         $router->post('updatepassword', 'AuthController@updatepassword');
+        $router->post('updateuserdetail', 'AuthController@updateUserDetail');
+        $router->get('userdetail', 'AuthController@getUserDetail');
         
         $router->post('logout', 'AuthController@logout');
 });

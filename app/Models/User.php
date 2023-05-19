@@ -33,6 +33,9 @@ public function getJWTCustomClaims()
     protected $fillable = [
         'name', 'email',
     ];
+    protected $hidden = [
+        'created_at', 'updated_at',
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
