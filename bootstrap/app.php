@@ -61,6 +61,11 @@ $app->singleton(
 
 $app->configure('app');
 $app->configure('mail');
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
+$app->configure('cors');
+$app->middleware([
+    Fruitcake\Cors\HandleCors::class,
+]);
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
