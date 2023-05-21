@@ -145,11 +145,11 @@ return responseValidationError('Fields Validation Failed.', $validator->errors()
 } 
 try{
 
-$password=Hash::make($request['password']);
+$password=Hash::make($request['newPassword']);
 $email=$request['email'];
 
 
-$check_otp=User::where('email',$email)->update(['password'=>$password]);
+$updatePassword=User::where('email',$email)->update(['password'=>$password]);
 
     return response()->json([
         'status' => 'success',
