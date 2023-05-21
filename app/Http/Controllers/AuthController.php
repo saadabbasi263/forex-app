@@ -241,6 +241,8 @@ $UpdateUser=User::where('email',$user->email)->update([
     'state'=>(isset($request['state']) && $request['state'] != NULL)?$request['state']:$user->state,
     'swiftCode'=>(isset($request['swiftCode']) && $request['swiftCode'] != NULL)?$request['swiftCode']:$user->state,
     'workExperience'=>(isset($request['workExperience']) && $request['workExperience'] != NULL)?$request['workExperience']:$user->workExperience,
+    'date_of_birth'=>(isset($request['date_of_birth']) && $request['date_of_birth'] != NULL)?$request['date_of_birth']:$user->date_of_birth,
+    'postal_code'=>(isset($request['postal_code']) && $request['postal_code'] != NULL)?$request['postal_code']:$user->postal_code,
     
 ]);
 

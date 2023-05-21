@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('gender')->nullable();   
-            $table->date('date_of_birth');
-            $table->string('postal_code');
+            $table->date('date_of_birth')->nullable();
+            $table->string('postal_code')->nullable();
             $table->string('image')->nullable();
             $table->string('password')->nullable();
             $table->integer('otp')->nullable();
