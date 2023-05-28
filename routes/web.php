@@ -24,6 +24,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->post('updatepassword', 'AuthController@updatepassword');
         $router->post('updateuserdetail', 'AuthController@updateUserDetail');
         $router->get('userdetail', 'AuthController@getUserDetail');
+        $router->get('forexdata/{from}/{to}', 'HomeController@getForexData');
         
         $router->post('logout', 'AuthController@logout');
 });
