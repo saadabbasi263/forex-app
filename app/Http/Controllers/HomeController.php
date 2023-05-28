@@ -57,7 +57,7 @@ $ticker=$data['forexTicker'];
         "code" => 200, 
         "data" => $result,  
         "abbrevations" =>$res,
-        "message" => "User Registered!"
+        "message" => "Data Loaded Successfully!"
     ]);
 
 }
